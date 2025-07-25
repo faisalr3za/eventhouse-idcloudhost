@@ -288,15 +288,15 @@ PUT  /api/admin/visitor/:id    # Update peserta
 ## 💰 Subscription Plans
 
 | Plan | Price (IDR/month) | Events | Visitors | Users | Features |
-|------|------------------|--------|----------|-------|
+|------|------------------ |--------|----------|-------|----------|
 | **Free** | Rp 0 | 1 | 50 | 1 | Basic QR, Email, Analytics |
 | **Starter** | Rp xxx,xxx | 5 | 500 | 3 | Custom branding, CSV export, Priority support |
 | **Professional** | Rp x,xxx,xxx | 25 | 2,500 | 10 | White label, API access, Custom domains |
 | **Enterprise** | Rp x,xxx,xxx | Unlimited | Unlimited | Unlimited | Everything + Custom features |
 
-> 💡 **Yearly Discount**: 20% off when billed annually
+> 💡 **Yearly Discount**: 20% off ketika berlangganan 1 tahun 
 
-## 🚀 Quick Start
+## 🚀 Mulai Cepat!
 
 ### Prerequisites
 - Node.js 18+ 
