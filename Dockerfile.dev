@@ -1,0 +1,40 @@
+# Use the official Node.js 18 image based on Alpine Linux for development
+FROM node:18-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Install system dependencies needed for development
+RUN apk add --no-cache \
+    git \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/cache/apk/*
+
+# Copy package.json and package-lock.json first for better caching
+COPY package*.json ./
+
+# Install all dependencies (including devDependencies for development)
+RUN npm install
+
+# Create necessary directories
+RUN mkdir -p public/assets/qr-codes logs
+
+# Copy the rest of the application code
+COPY . .
+
+# Set permissions for uploaded files directory
+RUN chmod -R 755 public/assets
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Set environment to development
+ENV NODE_ENV=development
+
+# Install nodemon globally for development
+RUN npm install -g nodemon
+
+# Command to run the application in development mode
+CMD ["npm", "run", "dev"]

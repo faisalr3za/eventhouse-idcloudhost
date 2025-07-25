@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Scanner - EventHouse by IDCloudHost Mobile</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#007bff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="QR Scanner">
+    <meta name="msapplication-TileColor" content="#007bff">
+    <meta name="description" content="Mobile QR code scanner for event check-in">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/assets/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/icon-180x180.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .scanner-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .scanner-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .scanner-header {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        #qr-reader {
+            width: 100%;
+            height: 300px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .qr-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 3px solid #007bff;
+            border-radius: 10px;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+        
+        .scanner-controls {
+            padding: 20px;
+        }
+        
+        .result-card {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .error-card {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .btn-scanner {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 10px;
+            margin: 5px 0;
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .visitor-info {
+            background: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .camera-permissions {
+            text-align: center;
+            padding: 30px;
+            color: #6c757d;
+        }
+        
+        @media (max-width: 576px) {
+            .scanner-container {
+                padding: 10px;
+            }
+            
+            #qr-reader {
+                height: 250px;
+            }
+        }
+        
+        /* PWA styles */
+        .pwa-install {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="scanner-container">
+            <!-- Header -->
+            <div class="scanner-card">
+                <div class="scanner-header">
+                    <h4><i class="bi bi-qr-code-scan"></i> QR Scanner</h4>
+                    <p class="mb-0">Scan QR code untuk check-in peserta</p>
+                </div>
+                
+                <!-- Scanner Area -->
+                <div class="scanner-controls">
+                    <div id="qr-reader">
+                        <div class="qr-overlay"></div>
+                        <div class="camera-permissions">
+                            <i class="bi bi-camera-video fs-1 text-muted"></i>
+                            <p>Mengakses kamera...</p>
+                            <button class="btn btn-primary" onclick="startScanner()">
+                                <i class="bi bi-camera"></i> Aktifkan Kamera
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Loading -->
+                    <div class="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Memproses check-in...</p>
+                    </div>
+                    
+                    <!-- Result Cards -->
+                    <div class="result-card" id="success-result">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill text-success fs-3 me-3"></i>
+                            <div>
+                                <h6 class="mb-1">Check-in Berhasil!</h6>
+                                <div id="visitor-details"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="error-card" id="error-result">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle-fill text-danger fs-3 me-3"></i>
+                            <div>
+                                <h6 class="mb-1">Error!</h6>
+                                <p class="mb-0" id="error-message"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Controls -->
+                    <div class="row g-2 mt-3">
+                        <div class="col-6">
+                            <button class="btn btn-outline-primary btn-scanner" onclick="startScanner()">
+                                <i class="bi bi-camera"></i> Mulai Scan
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-outline-secondary btn-scanner" onclick="stopScanner()">
+                                <i class="bi bi-stop-circle"></i> Stop
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-outline-info btn-scanner" onclick="switchCamera()">
+                                <i class="bi bi-arrow-repeat"></i> Ganti Kamera
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Manual Input -->
+                    <div class="mt-4">
+                        <h6>Input Manual</h6>
+                        <div class="input-group">
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="manual-code" 
+                                   placeholder="Masukkan kode registrasi">
+                            <button class="btn btn-primary" onclick="processManualCode()">
+                                <i class="bi bi-search"></i> Cari
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Card -->
+            <div class="stats-card mt-3">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h4 class="text-primary mb-1" id="total-checkins">0</h4>
+                        <small class="text-muted">Check-ins</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="text-success mb-1" id="success-rate">0%</h4>
+                        <small class="text-muted">Success Rate</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="text-info mb-1" id="last-scan">-</h4>
+                        <small class="text-muted">Last Scan</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Check-ins -->
+            <div class="stats-card">
+                <h6><i class="bi bi-clock-history"></i> Recent Check-ins</h6>
+                <div id="recent-checkins">
+                    <p class="text-muted text-center">Belum ada check-in</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PWA Install Prompt -->
+    <div class="pwa-install" id="pwa-install">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Install App</strong>
+                <br><small>Tambahkan ke home screen untuk akses cepat</small>
+            </div>
+            <div>
+                <button class="btn btn-light btn-sm me-2" onclick="installPWA()">Install</button>
+                <button class="btn btn-outline-light btn-sm" onclick="dismissPWA()">×</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    
+    <script>
+        let html5QrcodeScanner = null;
+        let isScanning = false;
+        let currentFacingMode = 'environment'; // back camera
+        let stats = {
+            totalCheckins: 0,
+            successfulScans: 0,
+            recentCheckins: []
+        };
+        
+        // PWA variables
+        let deferredPrompt;
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            loadStats();
+        });
+        
+        function initializeApp() {
+            // Check if running in standalone mode (PWA installed)
+            if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+                document.body.classList.add('pwa-mode');
+            }
+            
+            // Request camera permissions on first load
+            if ('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices) {
+                checkCameraPermissions();
+            }
+            
+            // Setup keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    if (!isScanning) {
+                        startScanner();
+                    }
+                }
+                if (e.key === 'Escape') {
+                    stopScanner();
+                }
+            });
+        }
+        
+        async function checkCameraPermissions() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                stream.getTracks().forEach(track => track.stop());
+                document.querySelector('.camera-permissions p').textContent = 'Kamera siap digunakan';
+            } catch (error) {
+                document.querySelector('.camera-permissions p').textContent = 'Izin kamera diperlukan';
+                console.error('Camera permission error:', error);
+            }
+        }
+        
+        function startScanner() {
+            if (isScanning) return;
+            
+            stopScanner(); // Stop any existing scanner
+            
+            const config = {
+                fps: 10,
+                qrbox: { width: 200, height: 200 },
+                aspectRatio: 1.0,
+                facingMode: currentFacingMode
+            };
+            
+            html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", config, false);
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            isScanning = true;
+            
+            // Hide camera permissions message
+            document.querySelector('.camera-permissions').style.display = 'none';
+            
+            // Update UI
+            updateScannerButtons();
+        }
+        
+        function stopScanner() {
+            if (html5QrcodeScanner && isScanning) {
+                html5QrcodeScanner.clear();
+                html5QrcodeScanner = null;
+                isScanning = false;
+                updateScannerButtons();
+            }
+        }
+        
+        function switchCamera() {
+            currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+            if (isScanning) {
+                startScanner(); // Restart with new camera
+            }
+        }
+        
+        function updateScannerButtons() {
+            const startBtn = document.querySelector('button[onclick="startScanner()"]');
+            const stopBtn = document.querySelector('button[onclick="stopScanner()"]');
+            
+            if (isScanning) {
+                startBtn.classList.add('disabled');
+                stopBtn.classList.remove('disabled');
+            } else {
+                startBtn.classList.remove('disabled');
+                stopBtn.classList.add('disabled');
+            }
+        }
+        
+        async function onScanSuccess(decodedText, decodedResult) {
+            // Stop scanner to prevent multiple scans
+            stopScanner();
+            
+            // Show loading
+            showLoading(true);
+            hideResults();
+            
+            // Vibrate if supported
+            if ('vibrate' in navigator) {
+                navigator.vibrate(200);
+            }
+            
+            // Process the QR code
+            await processQRCode(decodedText);
+        }
+        
+        function onScanFailure(error) {
+            // Silent fail - don't show errors for failed scans
+            console.log('Scan failed:', error);
+        }
+        
+        async function processQRCode(qrData) {
+            try {
+                // Get JWT token from localStorage or session
+                const token = localStorage.getItem('admin_token') || getTokenFromCookie();
+                
+                if (!token) {
+                    throw new Error('Anda belum login. Silakan login terlebih dahulu.');
+                }
+                
+                const response = await fetch('/api/admin/checkin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        qr_data: qrData,
+                        location: 'Mobile Scanner',
+                        scanned_by: getCurrentUser()
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    showSuccess(result.data);
+                    updateStats();
+                    addToRecentCheckins(result.data);
+                } else {
+                    throw new Error(result.message || 'Gagal melakukan check-in');
+                }
+                
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                showLoading(false);
+                
+                // Auto restart scanner after 3 seconds
+                setTimeout(() => {
+                    hideResults();
+                    startScanner();
+                }, 3000);
+            }
+        }
+        
+        async function processManualCode() {
+            const code = document.getElementById('manual-code').value.trim();
+            if (!code) {
+                showError('Masukkan kode registrasi');
+                return;
+            }
+            
+            showLoading(true);
+            hideResults();
+            
+            try {
+                // Convert manual code to QR data format if needed
+                await processQRCode(code);
+                document.getElementById('manual-code').value = '';
+            } catch (error) {
+                showError(error.message);
+                showLoading(false);
+            }
+        }
+        
+        function showSuccess(visitorData) {
+            const successCard = document.getElementById('success-result');
+            const detailsDiv = document.getElementById('visitor-details');
+            
+            detailsDiv.innerHTML = `
+                <div class="visitor-info">
+                    <strong>${visitorData.nama_lengkap}</strong><br>
+                    <small class="text-muted">
+                        ${visitorData.category_name} • ${visitorData.company || 'No Company'}<br>
+                        Check-in: ${new Date().toLocaleTimeString('id-ID')}
+                    </small>
+                </div>
+            `;
+            
+            successCard.style.display = 'block';
+            
+            // Play success sound
+            playNotificationSound('success');
+        }
+        
+        function showError(message) {
+            const errorCard = document.getElementById('error-result');
+            const messageDiv = document.getElementById('error-message');
+            
+            messageDiv.textContent = message;
+            errorCard.style.display = 'block';
+            
+            // Play error sound
+            playNotificationSound('error');
+        }
+        
+        function hideResults() {
+            document.getElementById('success-result').style.display = 'none';
+            document.getElementById('error-result').style.display = 'none';
+        }
+        
+        function showLoading(show) {
+            const loadingDiv = document.querySelector('.loading-spinner');
+            loadingDiv.style.display = show ? 'block' : 'none';
+        }
+        
+        function playNotificationSound(type) {
+            // Create audio context for sound feedback
+            if ('AudioContext' in window || 'webkitAudioContext' in window) {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                if (type === 'success') {
+                    oscillator.frequency.value = 800;
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                } else {
+                    oscillator.frequency.value = 300;
+                    gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                }
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.2);
+            }
+        }
+        
+        function updateStats() {
+            stats.totalCheckins++;
+            stats.successfulScans++;
+            
+            document.getElementById('total-checkins').textContent = stats.totalCheckins;
+            document.getElementById('success-rate').textContent = 
+                Math.round((stats.successfulScans / stats.totalCheckins) * 100) + '%';
+            document.getElementById('last-scan').textContent = 
+                new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            
+            // Save to localStorage
+            localStorage.setItem('scanner_stats', JSON.stringify(stats));
+        }
+        
+        function loadStats() {
+            const savedStats = localStorage.getItem('scanner_stats');
+            if (savedStats) {
+                stats = { ...stats, ...JSON.parse(savedStats) };
+                document.getElementById('total-checkins').textContent = stats.totalCheckins;
+                document.getElementById('success-rate').textContent = 
+                    stats.totalCheckins > 0 ? Math.round((stats.successfulScans / stats.totalCheckins) * 100) + '%' : '0%';
+            }
+        }
+        
+        function addToRecentCheckins(visitorData) {
+            stats.recentCheckins.unshift({
+                ...visitorData,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Keep only last 5 check-ins
+            stats.recentCheckins = stats.recentCheckins.slice(0, 5);
+            
+            // Update UI
+            updateRecentCheckinsUI();
+        }
+        
+        function updateRecentCheckinsUI() {
+            const recentDiv = document.getElementById('recent-checkins');
+            
+            if (stats.recentCheckins.length === 0) {
+                recentDiv.innerHTML = '<p class="text-muted text-center">Belum ada check-in</p>';
+                return;
+            }
+            
+            recentDiv.innerHTML = stats.recentCheckins.map(checkin => `
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div>
+                        <strong>${checkin.nama_lengkap}</strong><br>
+                        <small class="text-muted">${checkin.category_name}</small>
+                    </div>
+                    <small class="text-muted">
+                        ${new Date(checkin.timestamp).toLocaleTimeString('id-ID', { 
+                            hour: '2-digit', minute: '2-digit' 
+                        })}
+                    </small>
+                </div>
+            `).join('');
+        }
+        
+        // Utility functions
+        function getTokenFromCookie() {
+            // Try to get token from cookie if localStorage is empty
+            const name = 'admin_token=';
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const ca = decodedCookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) === 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return null;
+        }
+        
+        function getCurrentUser() {
+            return localStorage.getItem('admin_username') || 'Mobile User';
+        }
+        
+        // PWA Installation
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwa-install').style.display = 'block';
+        });
+        
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('PWA installed');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('pwa-install').style.display = 'none';
+                });
+            }
+        }
+        
+        function dismissPWA() {
+            document.getElementById('pwa-install').style.display = 'none';
+        }
+        
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+        
+        // Handle online/offline status
+        window.addEventListener('online', () => {
+            document.body.classList.remove('offline');
+        });
+        
+        window.addEventListener('offline', () => {
+            document.body.classList.add('offline');
+            showError('Koneksi internet terputus. Beberapa fitur mungkin tidak tersedia.');
+        });
+        
+        // Auto-start scanner on page load if camera permissions are granted
+        setTimeout(() => {
+            checkCameraPermissions().then(() => {
+                if (!isScanning) {
+                    startScanner();
+                }
+            });
+        }, 1000);
+    </script>
+</body>
+</html>
