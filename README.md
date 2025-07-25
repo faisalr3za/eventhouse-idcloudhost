@@ -65,7 +65,7 @@
 ## 📁 Struktur Proyek
 
 ```
-eventhouse-saas/
+eventhouse-idcloudhost/
 ├── 📁 src/                     # Source code utama
 │   ├── 📁 controllers/         # Request handlers
 │   ├── 📁 models/             # Database models
@@ -306,8 +306,8 @@ PUT  /api/admin/visitor/:id    # Update peserta
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/eventhouse/eventhouse-saas.git
-cd eventhouse-saas
+git clone https://github.com/eventhouse/eventhouse-idcloudhost.git
+cd eventhouse-idcloudhost
 ```
 
 ### 2. Environment Setup
@@ -715,7 +715,7 @@ artillery run tests/load/registration.yml
 ### Using Docker
 ```bash
 # Build image
-docker build -t eventhouse-saas .
+docker build -t eventhouse-idcloudhost .
 
 # Run with Docker Compose
 docker-compose -f docker-compose.prod.yml up -d
@@ -733,7 +733,7 @@ pm2 start ecosystem.config.js --env production
 pm2 monit
 
 # Logs
-pm2 logs eventhouse-saas
+pm2 logs eventhouse-idcloudhost
 ```
 
 ### Environment-specific Commands
@@ -745,7 +745,7 @@ npm run deploy:staging
 npm run deploy:production
 
 # Rollback
-pm2 reload eventhouse-saas --update-env
+pm2 reload eventhouse-idcloudhost --update-env
 ```
 
 ### SSL Setup (Let's Encrypt)
@@ -819,7 +819,7 @@ tail -f /var/log/nginx/access.log
 ### Development Setup
 ```bash
 # Fork and clone
-git clone https://github.com/yourusername/eventhouse-saas.git
+git clone https://github.com/yourusername/eventhouse-idcloudhost.git
 
 # Create feature branch
 git checkout -b feature/amazing-feature
@@ -849,16 +849,16 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ### Documentation
 - **API Docs**: http://localhost:3000/api/docs
-- **Wiki**: [GitHub Wiki](https://github.com/eventhouse/eventhouse-saas/wiki)
+- **Wiki**: [GitHub Wiki](https://github.com/eventhouse/eventhouse-idcloudhost/wiki)
 - **FAQ**: [Frequently Asked Questions](docs/FAQ.md)
 
 ### Community
-- **Issues**: [GitHub Issues](https://github.com/eventhouse/eventhouse-saas/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/eventhouse/eventhouse-saas/discussions)
+- **Issues**: [GitHub Issues](https://github.com/eventhouse/eventhouse-idcloudhost/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/eventhouse/eventhouse-idcloudhost/discussions)
 
 ---
 
 <div align="center">
-  <p><strong>Made with ❤️ by IDCluodHost for Indonesian Event Organizers</strong></p>
+  <p><strong>Code with ❤️ from Sukabumi by IDCluodHost for Indonesian Event Organizers</strong></p>
   <p>EventHouse by IDCloudHost © 2025 - Empowering Events, One Registration at a Time</p>
 </div>
