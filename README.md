@@ -855,16 +855,10 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ### Community
 - **Issues**: [GitHub Issues](https://github.com/eventhouse/eventhouse-saas/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/eventhouse/eventhouse-saas/discussions)
-- **Discord**: [Join our server](https://discord.gg/eventhouse)
-
-### Commercial Support
-- **Email**: support@eventhouse.com
-- **Enterprise**: enterprise@eventhouse.com
-- **SLA**: Available for Enterprise customers
 
 ---
 
 <div align="center">
-  <p><strong>Made with ❤️ for Indonesian Event Organizers</strong></p>
-  <p>EventHouse by IDCloudHost SaaS © 2024 - Empowering Events, One Registration at a Time</p>
+  <p><strong>Made with ❤️ by IDCluodHost for Indonesian Event Organizers</strong></p>
+  <p>EventHouse by IDCloudHost © 2025 - Empowering Events, One Registration at a Time</p>
 </div>
