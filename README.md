@@ -290,9 +290,9 @@ PUT  /api/admin/visitor/:id    # Update peserta
 | Plan | Price (IDR/month) | Events | Visitors | Users | Features |
 |------|------------------|--------|----------|-------|
 | **Free** | Rp 0 | 1 | 50 | 1 | Basic QR, Email, Analytics |
-| **Starter** | Rp 449,000 | 5 | 500 | 3 | Custom branding, CSV export, Priority support |
-| **Professional** | Rp 1,199,000 | 25 | 2,500 | 10 | White label, API access, Custom domains |
-| **Enterprise** | Rp 2,999,000 | Unlimited | Unlimited | Unlimited | Everything + Custom features |
+| **Starter** | Rp xxx,xxx | 5 | 500 | 3 | Custom branding, CSV export, Priority support |
+| **Professional** | Rp x,xxx,xxx | 25 | 2,500 | 10 | White label, API access, Custom domains |
+| **Enterprise** | Rp x,xxx,xxx | Unlimited | Unlimited | Unlimited | Everything + Custom features |
 
 > 💡 **Yearly Discount**: 20% off when billed annually
 
